@@ -1,0 +1,468 @@
+
+
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Surprise For You</title>
+    <link href="https://fonts.googleapis.com/css2?family=Mali:wght@400;700&display=swap" rel="stylesheet">
+    
+    
+    <style>
+        /* --- ตั้งค่าหน้าเว็บหลัก --- */
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f0f2f5; /* สีพื้นหลังหลัก */
+            font-family: 'Mali', cursive;
+            overflow-x: hidden; /* ห้ามเลื่อนซ้ายขวา */
+        }
+
+        /* --- ส่วนที่ 1: การ์ดเพลง (เต็มหน้าจอแรก) --- */
+        .section-music {
+            height: 100vh; /* สูงเต็มจอ */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        /* กล่องรวมการ์ด */
+        .music-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        /* สไตล์การ์ดเดิม (ย่อมา) */
+        .card {
+            width: 300px;
+            height: 450px;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            transition: transform 0.3s;
+        }
+        .card:hover {
+            z-index: 100 !important;
+            transform: scale(1.05) rotate(0deg) !important;
+        }
+        .card-music {
+            background-color: #13668c;
+            transform: rotate(-10deg);
+            z-index: 2;
+            margin-right: -60px;
+        }
+        .card-message {
+            background-color: #0d445e;
+            transform: rotate(5deg) translateY(20px);
+            z-index: 1;
+        }
+        .album-img { width: 100%; height: 200px; object-fit: cover; border-radius: 10px; margin-bottom: 15px; border: 2px solid white;}
+        .play-btn { width: 60px; height: 60px; background: white; border-radius: 50%; color: #144552; font-size: 30px; display: flex; justify-content: center; align-items: center; cursor: pointer; margin: 20px auto; }
+        .qr-box { background: white; padding: 10px; border-radius: 10px; width: 140px; height: 140px; margin: 20px auto; }
+        .qr-box img { width: 100%; height: 100%; }
+
+        /* --- ส่วนที่ 2: ซองจดหมาย (หน้าจอถัดมา) --- */
+        .section-envelope {
+            /* --- ฉากกั้นสีขาว (Curtain) --- */
+.section-envelope {
+    position: relative; /* สำคัญ! เพื่อให้ฉากกั้นอ้างอิงขอบเขตกล่องนี้ */
+    overflow: hidden;   /* ไม่ให้ฉากกั้นหลุดออกไปบังส่วนอื่น */
+}
+
+.white-curtain {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: white; /* สีพื้นหลังปิดทับ */
+    z-index: 999; /* อยู่บนสุด บังทุกอย่าง */
+    transition: transform 1.5s ease-in-out; /* ความเร็วการเลื่อนขึ้น (1.5 วินาที) */
+    transform: translateY(0); /* สถานะปกติคือปิดอยู่ */
+}
+
+/* คลาสที่จะสั่งให้เลื่อนขึ้น */
+.white-curtain.slide-up {
+    transform: translateY(-100%); /* เลื่อนขึ้นไปข้างบนจนพ้นจอ */
+}
+
+            min-height: 100vh; /* สูงเต็มจอ */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-color: #f0f2f5; /* สีเดียวกับพื้นหลัง (เอาสีเหลืองออกแล้ว) */
+            padding-bottom: 50px;
+        }
+
+        /* แก้ไขตำแหน่งตัวหนังสือเด้ง */
+.scroll-hint {
+    position: absolute;    /* สั่งให้ลอยอิสระ */
+    bottom: 60px;          /* ให้ชิดขอบล่างของหน้าจอแรก */
+    left: 50%;             /* จัดกึ่งกลางแนวนอน */
+    transform: translateX(-50%); /* จัดกึ่งกลางให้เป๊ะ */
+    
+    /* สไตล์ตัวอักษร */
+    color: #144552;        /* สีเขียวเข้ม (ให้เข้ากับตีมการ์ดบน) */
+    opacity: 0.7;
+    text-align: center;
+    font-size: 14px;
+    z-index: 10;
+    
+    /* อนิเมชั่นเด้งดึ๋งเหมือนเดิม */
+    animation: bounce 2s infinite;
+}
+
+        /* --- ดีไซน์ซองจดหมาย --- */
+        .envelope-wrapper {
+            position: relative;
+            width: 300px;
+            height: 200px;
+            background-color: #ffe1fb; /* สีชมพูพื้นซอง */
+            cursor: pointer;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        /* ฝาซอง (บน) */
+        .envelope-flap {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 0;
+            border-left: 150px solid transparent;
+            border-right: 150px solid transparent;
+            border-top: 110px solid #ff8fa3; /* สีฝาซอง (เข้มกว่านิดหน่อย) */
+            z-index: 5; /* อยู่บนสุดตอนปิด */
+            transform-origin: top;
+            transition: transform 0.6s ease-in-out, z-index 0.6s;
+        }
+
+        /* ตัวกระเป๋าซอง (บังการ์ดไว้) */
+        .envelope-pocket {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 0;
+            border-left: 150px solid transparent;
+            border-right: 150px solid transparent;
+            border-bottom: 110px solid #ff9eb5; /* สีตัวซองด้านหน้า */
+            z-index: 4; /* อยู่ทับการ์ด */
+        }
+        
+        /* กระเป๋าซองส่วนซ้าย-ขวา (เพื่อให้ทึบสนิท) */
+        .envelope-pocket-sides {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: transparent; /* ไม่เทสีพื้น */
+            z-index: 3;
+            overflow: hidden;
+        }
+        .envelope-pocket-sides::before { /* ซ้าย */
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0;
+            width: 0; height: 0;
+            border-left: 150px solid #ffb7c5;
+            border-top: 100px solid transparent;
+            border-bottom: 100px solid transparent;
+        }
+        .envelope-pocket-sides::after { /* ขวา */
+            content: '';
+            position: absolute;
+            bottom: 0; right: 0;
+            width: 0; height: 0;
+            border-right: 150px solid #ffb7c5;
+            border-top: 100px solid transparent;
+            border-bottom: 100px solid transparent;
+        }
+
+        /* ตัวการ์ดข้างใน */
+        .letter {
+            position: absolute;
+            bottom: 0;
+            left: 15px; /* จัดกึ่งกลาง (300 - 270) / 2 */
+            width: 270px;
+            height: 180px; /* ความสูงตอนพับอยู่ */
+            background-color: white;
+            z-index: 2; /* อยู่ใต้ฝาและกระเป๋า */
+            transition: bottom 0.8s ease-in-out, height 0.8s ease-in-out, z-index 0.1s;
+            transition-delay: 0.2s;
+            border-radius: 10px 10px 0 0;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        /* ปุ่มครั่ง (Wax Seal) */
+        .wax-seal {
+            width: 60px;
+            height: 60px;
+            background-color: #d98e94;
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            border: 3px solid rgba(255,255,255,0.3);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            transition: opacity 0.3s;
+        }
+
+        /* --- สถานะตอนเปิดซอง --- */
+        .envelope-wrapper.open .envelope-flap {
+            transform: rotateX(180deg);
+            z-index: 1; /* พับไปอยู่หลังสุด */
+        }
+        .envelope-wrapper.open .wax-seal {
+            opacity: 0;
+            pointer-events: none;
+        }
+        .envelope-wrapper.open .letter {
+            bottom: 100px; /* เลื่อนขึ้นมา */
+            height: 500px; /* ยืดการ์ดให้ยาว */
+            z-index: 6; /* เด้งมาอยู่หน้าสุดเพื่อให้อ่านได้ */
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            border-radius: 10px;
+            overflow-y: auto; /* ให้เลื่อนอ่านเนื้อหาได้ */
+        }
+
+        /* --- เนื้อหาในการ์ด (Layout) --- */
+        .letter-content {
+            opacity: 0; /* ซ่อนก่อน */
+            transition: opacity 0.5s ease 0.8s; /* ค่อยๆ ขึ้นมาทีหลัง */
+        }
+        .envelope-wrapper.open .letter-content {
+            opacity: 1;
+        }
+
+        /* แถวเนื้อหา (Grid) */
+        .row {
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* แบ่งครึ่ง */
+            gap: 15px;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+        .row.reverse {
+            direction: rtl; /* สลับด้าน */
+        }
+        .row.reverse * {
+            direction: ltr; /* แก้ตัวหนังสือกลับ */
+        }
+        
+        .img-frame {
+            width: 100%;
+            aspect-ratio: 1/1;
+            background: #eee;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 2px solid #ffb7c5;
+        }
+        .img-frame img { width: 100%; height: 100%; object-fit: cover; }
+        
+        .text-box h4 { margin: 0 0 5px 0; color: #d98e94; font-size: 14px;}
+        .text-box p { font-size: 11px; margin: 0; color: #555; }
+
+        /* ปุ่มปิดจดหมาย */
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #eee;
+            width: 30px; 
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            font-size: 16px;
+            color: #777;
+            z-index: 20;
+        }
+        .close-btn:hover { background: #ddd; }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
+            40% {transform: translateY(-10px);}
+            60% {transform: translateY(-5px);}
+        }
+
+        /* ปรับมือถือ */
+        @media (max-width: 600px) {
+            .section-music { transform: scale(0.9); }
+            .envelope-wrapper { transform: scale(1.1); } 
+            .row { grid-template-columns: 1fr; gap: 10px; text-align: center;} /* มือถือให้เรียงเดี่ยว */
+            .row.reverse { direction: ltr; }
+            .envelope-wrapper.open .letter { width: 320px; left: -10px; height: 500px; } /* ขยายการ์ดให้เต็มจอมือถือ */
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="section-music">
+        <div class="music-container">
+            <div class="card card-music">
+                <img src="public/picc/hq720.png" class="album-img" alt="รูปคู่">
+                <h3 style="margin: 0;">นับหนึ่ง</h3>
+                <p style="opacity: 0.8; font-size: 14px;">Billkin - From now on</p>
+                <div onclick="seekSong(event)" style="width: 100%; height: 4px; background: rgba(255,255,255,0.3); margin-top: 20px; border-radius: 2px; cursor: pointer;">
+                    <div id="progressBar" style="width: 0%; height: 100%; background: #4ade80;"></div>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 12px; margin-top: 5px;">
+                    <span id="currentTime">0:00</span><span id="duration">0:00</span>
+                </div>
+                <div class="play-btn" onclick="togglePlay()">▶</div>
+            </div>
+
+            <div class="card card-message">
+                <h2 style="text-align: center; color: #ffda48;">Hika kun fann</h2>
+                <p style="text-align: center;">สองเดือนแล้วอ้วนน เค้าดีใจมากกกที่
+                    อ้วนกลับมาหาเค้า เค้าต้องขอบคุณเธอที่ยังให้อภัยเค้าและไม่ทิ้งเค้าไปไหน เค้าจะรักษารักครั้งนี้ไว้นานๆเล้ยย 
+                    จริงๆแล้ว เค้าไม่รู้ว่าเค้าจะทำอะไรให้เธอดี เค้าเลยลองมานั่งเขียนโค้ตให้เธอดีกว่า อาจจะไม่สวยมากและเค้าทำด้ายแค่นี้เจรง ถ้าเค้ามีเวลามากกว่านี้ เค้าอาจจะทำสวยกว่านี้ก็ได้มั้งงง
+
+
+                
+                
+                </p>
+                
+                <p style="text-align: center; color: #ffda48;">สุดท้ายและเค้ารักเธอมากกกกกกกกก รักมากกว่าที่เธอรักเค้าแน่นอนนน5555
+                    อยู่กับเค้าไปนานๆ เลยน้าาา 🌻
+                </p>
+                <div style="margin-top: auto; font-size: 14px; text-align: center;">
+                    <p style="text-align: center; color: #ffda48;">2310</p>
+                    <p>เลิ้ฟยู้ววว</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="section-envelope">
+        
+        <div class="scroll-hint">
+            แฮร่ เลื่อนลงมาจิ<br>⬇️
+        </div>
+
+        <div class="envelope-wrapper" id="envelope">
+            
+            <div class="envelope-flap"></div>
+
+            <div class="wax-seal" onclick="toggleEnvelope()">
+                กดเปิด
+            </div>
+
+            <div class="letter">
+                <div class="close-btn" onclick="toggleEnvelope(event)">✕</div>
+
+                <div class="letter-content">
+                    <h3 style="text-align: center; color: #d98e94; margin-top: 20px;"> </h3>
+                    
+                    <div class="row">
+                        <div class="img-frame"><img src="public/photo1.jpg" alt=""></div>
+                        <div class="text-box">
+                            <h4>เจอกันวันแรก 27/01/25</h4>
+                            <p>วันนั้นเป็นวันทีทเค้าไปหาเธอครั้งแรก ได้ดูหนังด้วยกันมีความสุขมากกก ชอบตอนมาหาเธอสุดๆแต่ไม่ชอบตอนกลับที่สุด ทำให้รู้สึกว่าอยากเจอเธออีกรอบบ </p>
+                        </div>
+                    </div>
+
+                    <div class="row reverse">
+                        <div class="img-frame"><img src="public/photo2.jpg" alt=""></div>
+                        <div class="text-box">
+                            <h4>วันเกิดเธอ 2/10/25</h4>
+                            <p> วันนี้เป็นวันเกิดเธอแต่เรา2คน ยังไม่ได้กลับไปคบกัน ฮือๆๆๆ ได้กินHotpot Manครั้งแรก อร่อยมากก แต่แฟนไม่ชอบหมาล่า เศร้าเสียใจมากนอนร้องไห้ไป3วัน(พูดเล่น!)</p>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="img-frame"><img src="public/photo3.jpg" alt=""></div>
+                        <div class="text-box">
+                            <h4>จากนี้ตลอดไป</h4>
+                            <p>อยู่เป็นความสุขของกันและกันแบบนี้ไปนานๆ นะ</p>
+                        </div>
+                    </div>
+
+                    <div class="row reverse">
+                        <div class="img-frame"><img src="public/photo2.jpg" alt=""></div>
+                        <div class="text-box">
+                            <h4>วันเกิดเธอ 2/10/25</h4>
+                            <p> วันนี้เป็นวันเกิดเธอแต่เรา2คน ยังไม่ได้กลับไปคบกัน ฮือๆๆๆ ได้กินHotpot Manครั้งแรก อร่อยมากก แต่แฟนไม่ชอบหมาล่า เศร้าเสียใจมากนอนร้องไห้ไป3วัน(พูดเล่น!)</p>
+                        </div>
+                    </div>
+                    
+                    <p style="text-align: center; font-size: 12px; color: #aaa; margin-top: 30px;">- รักที่สุด -</p>
+                </div>
+            </div>
+
+            <div class="envelope-pocket-sides"></div> <div class="envelope-pocket"></div> </div>
+    </div>
+
+    <audio id="myAudio"><source src="public/music/Billkin.mp3" type="audio/mpeg"></audio>
+
+    <script>
+        // --- ส่วนเครื่องเล่นเพลง ---
+        var audio = document.getElementById("myAudio");
+        var playBtn = document.querySelector(".play-btn");
+        var progressBar = document.getElementById("progressBar");
+        var currentTimeEl = document.getElementById("currentTime");
+        var durationEl = document.getElementById("duration");
+        var isPlaying = false;
+
+        function togglePlay() {
+            if (isPlaying) { audio.pause(); playBtn.innerHTML = "▶"; } 
+            else { audio.play(); playBtn.innerHTML = "❚❚"; }
+            isPlaying = !isPlaying;
+        }
+
+        audio.onloadedmetadata = function() { durationEl.innerText = formatTime(audio.duration); };
+        audio.ontimeupdate = function() {
+            if (audio.duration) {
+                progressBar.style.width = (audio.currentTime / audio.duration) * 100 + "%";
+                currentTimeEl.innerText = formatTime(audio.currentTime);
+            }
+        };
+        function seekSong(event) {
+            audio.currentTime = (event.offsetX / event.currentTarget.clientWidth) * audio.duration;
+        }
+        function formatTime(s) {
+            var m = Math.floor(s / 60), sc = Math.floor(s % 60);
+            return m + ":" + (sc < 10 ? "0" + sc : sc);
+        }
+
+        // --- ส่วนซองจดหมาย ---
+        function toggleEnvelope(event) {
+            if(event) event.stopPropagation(); // ป้องกันการกดซ้ำซ้อน
+            var env = document.getElementById("envelope");
+            env.classList.toggle("open");
+
+            
+        }
+    </script>
+</body>
+</html>
+
+
+</body>
+</html>
